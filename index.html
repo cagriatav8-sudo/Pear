@@ -6,7 +6,7 @@
     <title>Pear Store - Space Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600&display=swap');
-        :root { --cyan: #00d4ff; --gold: #ffd700; --glass: rgba(255,255,255,0.07); --glass-border: rgba(255,255,255,0.15); }
+        :root { --cyan: #00d4ff; --gold: #ffd700; --red: #ff4d4d; --glass: rgba(255,255,255,0.07); --glass-border: rgba(255,255,255,0.15); }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { overflow-x: hidden; background: #000; color: white; font-family: 'Rajdhani', sans-serif; min-height: 100vh; }
         #space { position: fixed; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
@@ -36,15 +36,13 @@
         <button class="tab-btn" onclick="showTab('news')">📰 Haberler</button>
         <button class="tab-btn" onclick="showTab('giveaway')">🎁 Çekiliş</button>
         <button class="tab-btn" onclick="showTab('about')">ℹ️ Ekip</button>
-        <button class="tab-btn gold-tab" onclick="showTab('admin')" style="color:var(--gold);">🔒 Yetkili</button>
+        <button class="tab-btn" onclick="showTab('admin')" style="color:var(--gold);">🔒 Yetkili</button>
     </div>
 </nav>
 
-<!-- MAĞAZA -->
 <section id="page-home" class="page active">
     <h1 style="font-family:'Orbitron'; color:var(--cyan); margin-bottom:30px;">PEAR STORE</h1>
     <div class="product-grid">
-        <!-- Resimler artık doğrudan internetten çekiliyor -->
         <div class="product-card"><img src="https://i.ibb.co/LhyxVw7/image-87ba7e.png"><h3>TPear 19 Pro</h3></div>
         <div class="product-card"><img src="https://i.ibb.co/3WfPrvX/image-87baf1.png"><h3>TPear 20 Air</h3></div>
         <div class="product-card"><img src="https://i.ibb.co/Yy7r93Y/image-87b71a.jpg"><h3>MPear Samuray</h3></div>
@@ -53,13 +51,11 @@
     </div>
 </section>
 
-<!-- HABERLER (24 Saat Sistemli) -->
 <section id="page-news" class="page">
     <h2 style="font-family:'Orbitron'; margin-bottom:20px;">GÜNCEL HABERLER</h2>
     <div id="news-container"></div>
 </section>
 
-<!-- EKİP -->
 <section id="page-about" class="page">
     <div class="card">
         <h2 style="color:var(--cyan); font-family:'Orbitron';">HTML ÇAĞRI EKIBI</h2>
@@ -70,7 +66,6 @@
     </div>
 </section>
 
-<!-- ÇEKİLİŞ -->
 <section id="page-giveaway" class="page">
     <div class="card">
         <h2 style="font-family:'Orbitron'; color:var(--gold);">🎁 HEDİYE ÇEKİLİŞİ</h2>
@@ -83,7 +78,6 @@
     </div>
 </section>
 
-<!-- ADMIN -->
 <section id="page-admin" class="page">
     <div id="adminLogin">
         <h2>🔒 YETKİLİ GİRİŞİ</h2>
@@ -100,7 +94,7 @@
         <div class="card">
             <h3>Çekiliş Yönetimi</h3>
             <button class="main-btn" onclick="startGiveaway()">BAŞLAT</button>
-            <button class="main-btn" onclick="stopDraw()" style="background:var(--red);">DURDUR</button>
+            <button class="main-btn" onclick="stopDraw()" style="background:var(--red);">DURDUR / ATLA</button>
             <h2 id="winnerName" style="color:var(--gold); margin-top:15px; text-align:center;">---</h2>
         </div>
     </div>
@@ -171,7 +165,9 @@
         }
     }
 
-    for(let i=0; i<25; i++) {
+    cleanOldNews();
+
+    for(let i=0; i<30; i++) {
         let p = document.createElement('div'); p.className = 'pear-fall'; p.innerHTML = '🍐';
         p.style.left = Math.random() * 100 + 'vw';
         p.style.animationDuration = (Math.random() * 3 + 2) + 's';
