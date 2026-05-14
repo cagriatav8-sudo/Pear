@@ -21,9 +21,9 @@
         .page.active { display: block; }
         .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 25px; border-radius: 20px; max-width: 600px; margin: 0 auto 20px; }
         .product-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 20px; }
-        .product-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 10px; border-radius: 15px; width: 180px; transition: 0.3s; }
+        .product-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 10px; border-radius: 15px; width: 190px; transition: 0.3s; }
         .product-card:hover { border-color: var(--cyan); transform: scale(1.05); }
-        .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 10px; background: #222; }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; background: #111; }
         input, textarea { width: 100%; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 8px; color: white; margin-bottom: 10px; font-family: inherit; }
         .main-btn { background: var(--cyan); color: #000; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
@@ -44,7 +44,7 @@
 
 <!-- MAĞAZA -->
 <section id="page-home" class="page active">
-    <h1 style="font-family:'Orbitron'; color:var(--cyan);">PEAR STORE</h1>
+    <h1 style="font-family:'Orbitron'; color:var(--cyan); letter-spacing: 5px;">PEAR STORE</h1>
     <div class="product-grid">
         <div class="product-card"><img src="image_87ba7e.png"><h3>TPear 19 Pro</h3></div>
         <div class="product-card"><img src="image_87baf1.png"><h3>TPear 20 Air</h3></div>
@@ -74,7 +74,7 @@
     </div>
 </section>
 
-<!-- EKİP (GÜNCELLENDİ) -->
+<!-- EKİP -->
 <section id="page-about" class="page">
     <div class="card">
         <h2 style="color:var(--cyan); font-family:'Orbitron';">HTML ÇAĞRI EKIBI</h2>
@@ -102,9 +102,10 @@
             <button class="main-btn" onclick="addNews()">YAYINLA</button>
         </div>
         <div class="card">
-            <h3>Çekiliş</h3>
+            <h3>Çekiliş Kontrol</h3>
             <button class="main-btn" onclick="startGiveaway()">ÇEKİLİŞİ BAŞLAT</button>
-            <h2 id="winnerName" style="color:var(--gold); margin-top:10px;">---</h2>
+            <button class="main-btn" onclick="stopDraw()" style="background:var(--red);">DURDUR / ATLA</button>
+            <h2 id="winnerName" style="color:var(--gold); margin-top:10px; text-align:center;">---</h2>
         </div>
     </div>
 </section>
@@ -112,6 +113,7 @@
 <script>
     let news = JSON.parse(localStorage.getItem('p_news')) || [];
     let participants = JSON.parse(localStorage.getItem('p_parts')) || [];
+    let drawInterval;
 
     function save() {
         localStorage.setItem('p_news', JSON.stringify(news));
@@ -139,27 +141,30 @@
         const n = document.getElementById('gName').value;
         const c = document.getElementById('gClass').value;
         const t = document.getElementById('gTerms').checked;
-        if(n && c && t) { participants.push({n, c}); save(); alert("Katıldın!"); }
+        if(n.length > 2 && c && t) { participants.push({n, c}); save(); alert("Katıldın!"); }
+        else { alert("Bilgileri kontrol et!"); }
     }
 
     function startGiveaway() {
         if(participants.length === 0) return alert("Katılımcı yok!");
-        let i = 0;
-        let loop = setInterval(() => {
+        clearInterval(drawInterval);
+        drawInterval = setInterval(() => {
             let rand = participants[Math.floor(Math.random() * participants.length)];
             document.getElementById('winnerName').innerText = rand.n + " (" + rand.c + ")";
-            i++; if(i > 20) clearInterval(loop);
-        }, 50);
+        }, 60);
     }
+
+    function stopDraw() { clearInterval(drawInterval); }
 
     function loginAdmin() {
         if(document.getElementById('adminPw').value === 'Piır6791181') {
             document.getElementById('adminLogin').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
-        }
+        } else { alert("Yanlış Kod!"); }
     }
 
-    for(let i=0; i<25; i++) {
+    // Space background
+    for(let i=0; i<30; i++) {
         let p = document.createElement('div'); p.className = 'pear-fall'; p.innerHTML = '🍐';
         p.style.left = Math.random() * 100 + 'vw';
         p.style.animationDuration = (Math.random() * 3 + 2) + 's';
