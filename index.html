@@ -3,99 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pear System OS</title>
+    <title>Pear Store - Space Edition</title>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .hidden { display: none !important; }
-        #boot-screen { text-align: center; transition: opacity 1s; }
-        #pear-logo { font-size: 120px; display: inline-block; transition: 0.2s; }
-        .bitten { clip-path: polygon(0% 0%, 100% 0%, 100% 30%, 75% 45%, 100% 60%, 100% 100%, 0% 100%); }
-        #shop-screen { width: 100%; height: 100vh; background: #1a1a1a; padding: 40px; box-sizing: border-box; text-align: center; }
-        .product-grid { display: flex; justify-content: center; gap: 20px; margin-top: 50px; }
-        .card { background: #252525; border: 1px solid #444; border-radius: 15px; padding: 20px; width: 200px; }
-        .buy-btn { background: #ffeb3b; color: #000; border: none; padding: 10px; cursor: pointer; width: 100%; border-radius: 8px; font-weight: bold; }
-        #modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; }
-        .modal-content { background: #222; padding: 30px; border-radius: 15px; display: flex; flex-direction: column; gap: 10px; width: 300px; }
-        input { padding: 10px; background: #111; border: 1px solid #444; color: white; border-radius: 5px; }
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* UZAY ARKA PLANI VE DÜŞEN ARMUTLAR */
+        #space {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        }
+
+        .pear-fall {
+            position: absolute;
+            font-size: 30px;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        /* MAĞAZA TASARIMI */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .product-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid #555;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 10px;
+            width: 250px;
+        }
+
+        .stok-yok { color: #ff4d4d; font-weight: bold; }
+
+        /* BUTONLAR */
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            background: #fff;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .admin-btn { position: fixed; right: 20px; top: 20px; background: gold; }
+        .design-3d-btn { background: #00d4ff; margin-top: 10px; }
+
+        /* MODALLAR (ÖDEME, YETKİLİ, 3D) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .white-screen {
+            background: white;
+            color: black;
+            padding: 30px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group input { width: 100%; padding: 8px; box-sizing: border-box; }
+        .error { color: red; font-size: 12px; margin-top: 5px; }
+
+        /* MAVİ TİK ANİMASYONU */
+        .success-circle {
+            width: 80px; height: 80px; border: 5px solid #007bff;
+            border-radius: 50%; margin: 20px auto;
+            position: relative; animation: rotate 1s linear;
+        }
+        .checkmark {
+            position: absolute; top: 20px; left: 15px;
+            width: 40px; height: 20px; border-left: 5px solid #007bff;
+            border-bottom: 5px solid #007bff; transform: rotate(-45deg);
+        }
+
+        @keyframes rotate { from { transform: scale(0); } to { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <div id="boot-screen">
-        <div id="pear-logo">🍐</div>
-        <h2 id="status-text">Sistem Başlatılıyor...</h2>
-    </div>
+<div id="space"></div>
 
-    <div id="shop-screen" class="hidden">
-        <h1>PEAR STORE</h1>
-        <div class="product-grid">
-            <div class="card">
-                <h3>Pear Mouse</h3>
-                <input type="number" id="q1" value="1" min="1" max="5">
-                <button class="buy-btn" onclick="openPayment('Pear Mouse', 'q1')">SATIN AL</button>
-            </div>
-            <div class="card">
-                <h3>Pear Klavye</h3>
-                <input type="number" id="q2" value="1" min="1" max="5">
-                <button class="buy-btn" onclick="openPayment('Pear Klavye', 'q2')">SATIN AL</button>
-            </div>
+<button class="admin-btn" onclick="openAdmin()">🔒 Yetkili Girişi</button>
+
+<div class="container">
+    <h1>🍐 PEAR STORE - SPACE</h1>
+    
+    <div id="product-list" style="display: flex; flex-wrap: wrap; justify-content: center;">
+        <div class="product-card">
+            <h3>Pear Mouse</h3>
+            <p class="stok-yok">STOK YOK</p>
+        </div>
+        <div class="product-card">
+            <h3>Pear Keyboard</h3>
+            <p class="stok-yok">STOK YOK</p>
         </div>
     </div>
 
-    <div id="modal" class="hidden">
-        <div class="modal-content">
-            <h3>Ödeme Bilgileri</h3>
-            <input type="text" id="card-no" placeholder="Kart Numarası">
-            <input type="text" id="tel-no" placeholder="Telefon">
-            <input type="email" id="email-input" placeholder="Gmail Adresiniz">
-            <button style="background: #4CAF50; color: white; padding: 10px; border: none; cursor: pointer;" onclick="finish()">ONAYLA</button>
-            <button style="background: none; color: red; border: none; cursor: pointer;" onclick="closeModal()">Vazgeç</button>
+    <button class="design-3d-btn" onclick="open3D()">🎨 3D Tasarım İsteği</button>
+</div>
+
+<!-- ÖDEME EKRANI (BEYAZ EKRAN) -->
+<div id="payModal" class="modal">
+    <div class="white-screen">
+        <h2 id="modalTitle">Ödeme Bilgileri</h2>
+        <div id="formFields">
+            <div class="input-group">
+                <label>Kart Numarası (16 Hane)</label>
+                <input type="number" id="cardNum">
+                <div id="errCard" class="error"></div>
+            </div>
+            <div class="input-group">
+                <label>E-Posta Adresi</label>
+                <input type="email" id="payEmail">
+            </div>
+            <div class="input-group">
+                <label>Posta Kodu (5 Hane)</label>
+                <input type="number" id="zipCode">
+                <div id="errZip" class="error"></div>
+            </div>
+            <div class="input-group">
+                <label>Son Kullanma (MM/YY)</label>
+                <input type="text" id="expiry" placeholder="05/28">
+                <div id="errDate" class="error"></div>
+            </div>
+            <p style="font-size: 10px;">
+                <input type="checkbox" id="terms"> Şart ve Koşulları kabul ediyorum. (jsadıkhjasıkdhajd)
+            </p>
+            <button onclick="validateAndPay()" style="background: #28a745; color: white; width: 100%;">GÖNDER</button>
+        </div>
+
+        <div id="successScreen" style="display: none;">
+            <div class="success-circle"><div class="checkmark"></div></div>
+            <h3>İşleminiz Onaylandı</h3>
+            <button onclick="closeModal('payModal')">Kapat</button>
         </div>
     </div>
+</div>
 
-    <audio id="bite-sound" src="https://assets.mixkit.co/active_storage/sfx/2288/2288-preview.mp3"></audio>
+<!-- 3D TASARIM MODAL -->
+<div id="threeDModal" class="modal">
+    <div class="white-screen">
+        <h2>🍐 Pear 3D Tasarım</h2>
+        <p>İsteğinizi aşağıya yazın:</p>
+        <textarea id="threeDText" style="width:100%; height:80px;"></textarea>
+        <br><br>
+        <button onclick="send3DRequest()">GÖNDER</button>
+        <button onclick="closeModal('threeDModal')" style="background:#ccc">İptal</button>
+    </div>
+</div>
 
-    <script>
-        const biteSound = document.getElementById('bite-sound');
-        const logo = document.getElementById('pear-logo');
-        let selectedProduct = "";
-
-        window.onload = () => {
-            setTimeout(() => {
-                biteSound.play().catch(() => {});
-                logo.classList.add('bitten');
-                setTimeout(() => {
-                    document.getElementById('boot-screen').style.opacity = '0';
-                    setTimeout(() => {
-                        document.getElementById('boot-screen').classList.add('hidden');
-                        document.getElementById('shop-screen').classList.remove('hidden');
-                    }, 1000);
-                }, 1000);
-            }, 2000);
-        };
-
-        function openPayment(name, id) {
-            selectedProduct = name + " x" + document.getElementById(id).value;
-            document.getElementById('modal').classList.remove('hidden');
+<script>
+    // UZAYDA DÜŞEN ARMUTLAR
+    function createPears() {
+        const space = document.getElementById('space');
+        for(let i=0; i<30; i++) {
+            let p = document.createElement('div');
+            p.className = 'pear-fall';
+            p.innerHTML = '🍐';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            p.style.opacity = Math.random();
+            space.appendChild(p);
         }
+    }
+    createPears();
 
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-
-        function finish() {
-            const email = document.getElementById('email-input').value;
-            const tel = document.getElementById('tel-no').value;
-
-            // BACKEND İSTEĞİ (Buradaki URL'yi backend'i yüklediğin yerle değiştireceksin)
-            fetch('http://localhost:3000/satin-al', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ urun: selectedProduct, email: email, telefon: tel })
-            })
-            .then(() => alert("Sipariş alındı ve arkadaşına iletildi!"))
-            .catch(() => alert("Backend çalışmıyor veya bağlantı hatası!"));
-            
-            closeModal();
+    // YETKİLİ GİRİŞİ
+    let requests = [];
+    function openAdmin() {
+        let pass = prompt("Yetkili Şifresi:");
+        if(pass === "piır") {
+            let action = prompt("Siparişleri temizlemek için 'sil' yazın. 3D İstekleri görmek için 'istek' yazın.");
+            if(action === "sil") {
+                document.getElementById('product-list').innerHTML = "<p>Tüm ürünler yetkili tarafından kaldırıldı.</p>";
+            } else if(action === "istek") {
+                alert("Gelen 3D İstekler:\n" + (requests.join("\n") || "İstek yok."));
+            }
+        } else {
+            alert("Hatalı Şifre!");
         }
-    </script>
+    }
+
+    // 3D İSTEK
+    function open3D() { document.getElementById('threeDModal').style.display = 'flex'; }
+    function send3DRequest() {
+        let txt = document.getElementById('threeDText').value;
+        if(txt) {
+            requests.push(txt);
+            alert("İsteğiniz yetkiliye iletildi!");
+            closeModal('threeDModal');
+        }
+    }
+
+    // ÖDEME VE DOĞRULAMA
+    document.querySelector('.design-3d-btn').onclick = function() { // 3D butonu yerine ödeme gelsin diye geçici değiştirdim
+        document.getElementById('payModal').style.display = 'flex';
+    };
+
+    function validateAndPay() {
+        let card = document.getElementById('cardNum').value;
+        let zip = document.getElementById('zipCode').value;
+        let date = document.getElementById('expiry').value;
+        let terms = document.getElementById('terms').checked;
+
+        let isOk = true;
+
+        if(card.length !== 16) {
+            document.getElementById('errCard').innerText = "Kart 16 hane olmalıdır!";
+            isOk = false;
+        } else { document.getElementById('errCard').innerText = ""; }
+
+        if(zip.length !== 5) {
+            document.getElementById('errZip').innerText = "Posta kodu 5 hane olmalıdır!";
+            isOk = false;
+        } else { document.getElementById('errZip').innerText = ""; }
+
+        if(!date.includes("/") || date.length < 5) {
+            document.getElementById('errDate').innerText = "Geçerli bir tarih girin!";
+            isOk = false;
+        } else { document.getElementById('errDate').innerText = ""; }
+
+        if(!terms) { alert("Şartları kabul etmelisin!"); isOk = false; }
+
+        if(isOk) {
+            document.getElementById('formFields').style.display = 'none';
+            document.getElementById('modalTitle').style.display = 'none';
+            document.getElementById('successScreen').style.display = 'block';
+        }
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+
 </body>
 </html>
