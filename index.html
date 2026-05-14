@@ -5,187 +5,655 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pear Store - Space Edition</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; color: white; font-family: 'Segoe UI', sans-serif; }
-        #space { position: fixed; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
-        .pear-fall { position: absolute; font-size: 30px; animation: fall linear infinite; pointer-events: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600&display=swap');
+
+        :root {
+            --cyan: #00d4ff;
+            --gold: #ffd700;
+            --green: #28a745;
+            --red: #ff4d4d;
+            --glass: rgba(255,255,255,0.07);
+            --glass-border: rgba(255,255,255,0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            overflow-x: hidden;
+            background: #000;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* SPACE BG */
+        #space {
+            position: fixed; width: 100vw; height: 100vh; z-index: -1;
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+        }
+        .pear-fall {
+            position: absolute; font-size: 28px;
+            animation: fall linear infinite; pointer-events: none; opacity: 0.6;
+        }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
-        .container { display: flex; flex-direction: column; align-items: center; padding: 20px; z-index: 1; position: relative; }
-        .product-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 2px solid #555; padding: 20px; border-radius: 15px; text-align: center; margin: 10px; width: 250px; }
-        .stok-yok { color: #ff4d4d; font-weight: bold; margin-bottom: 10px; }
-        
-        button { padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; transition: 0.3s; }
-        .admin-btn { position: fixed; right: 20px; top: 20px; background: gold; color: black; z-index: 100; }
-        .main-btn { background: #00d4ff; color: white; margin-top: 20px; font-size: 18px; box-shadow: 0 0 10px #00d4ff; }
+        /* TAB NAV */
+        .tab-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0 20px;
+            height: 58px;
+        }
+        .tab-nav .logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900; font-size: 20px;
+            color: var(--cyan);
+            text-shadow: 0 0 12px var(--cyan);
+            margin-right: 30px;
+            white-space: nowrap;
+        }
+        .tabs {
+            display: flex; gap: 4px;
+            overflow-x: auto;
+        }
+        .tabs::-webkit-scrollbar { height: 2px; }
+        .tabs::-webkit-scrollbar-thumb { background: var(--cyan); }
+        .tab-btn {
+            background: none; border: none; color: rgba(255,255,255,0.55);
+            font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600;
+            padding: 8px 18px; cursor: pointer; border-radius: 6px;
+            transition: all 0.25s; white-space: nowrap; letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .tab-btn:hover { color: white; background: var(--glass); }
+        .tab-btn.active {
+            color: var(--cyan); background: rgba(0,212,255,0.12);
+            box-shadow: inset 0 -2px 0 var(--cyan);
+        }
+        .tab-btn.gold-tab { color: var(--gold); }
+        .tab-btn.gold-tab:hover { background: rgba(255,215,0,0.1); }
+        .tab-btn.gold-tab.active { color: var(--gold); background: rgba(255,215,0,0.12); box-shadow: inset 0 -2px 0 var(--gold); }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-        .white-screen { background: white; color: black; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; text-align: center; }
-        
-        .input-group { text-align: left; margin-bottom: 12px; }
-        .input-group label { font-weight: bold; display: block; margin-bottom: 3px; font-size: 14px; }
-        .input-group input, .input-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .error { color: red; font-size: 11px; font-weight: bold; }
+        /* PAGE SECTIONS */
+        .page { display: none; padding: 80px 20px 40px; min-height: 100vh; }
+        .page.active { display: block; }
 
-        .admin-box { max-height: 400px; overflow-y: auto; margin-top: 15px; border: 1px solid #eee; border-radius: 10px; }
-        .gmail-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
-        .sabit { background: #fff9c4 !important; border-left: 5px solid gold; }
+        /* ── ANA MENÜ ── */
+        #page-home {
+            display: none; flex-direction: column; align-items: center;
+        }
+        #page-home.active { display: flex; }
+        #page-home h1 {
+            font-family: 'Orbitron', monospace; font-size: clamp(28px,6vw,56px);
+            text-shadow: 0 0 30px var(--cyan); margin-bottom: 10px;
+        }
+        #page-home p.tagline { color: rgba(255,255,255,0.5); margin-bottom: 40px; font-size: 15px; }
+        .product-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 40px; }
+        .product-card {
+            background: var(--glass); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); padding: 28px 24px;
+            border-radius: 16px; text-align: center; width: 200px;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .product-card:hover { transform: translateY(-4px); border-color: var(--cyan); }
+        .product-card h3 { font-family: 'Orbitron', monospace; font-size: 14px; margin-bottom: 10px; }
+        .stok-yok { color: var(--red); font-weight: bold; font-size: 13px; }
+        .main-btn {
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            color: white; border: none; padding: 14px 36px;
+            border-radius: 50px; font-size: 17px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 0 20px rgba(0,212,255,0.4);
+            transition: 0.3s; font-family: 'Rajdhani', sans-serif;
+        }
+        .main-btn:hover { box-shadow: 0 0 35px rgba(0,212,255,0.7); transform: scale(1.04); }
+
+        /* ── HAKKINDA ── */
+        #page-about { display: none; justify-content: center; align-items: center; }
+        #page-about.active { display: flex; }
+        .about-card {
+            background: var(--glass); backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border); padding: 50px 40px;
+            border-radius: 24px; text-align: center; max-width: 520px; width: 100%;
+        }
+        .about-card h2 {
+            font-family: 'Orbitron', monospace; font-size: 22px;
+            color: var(--cyan); text-shadow: 0 0 10px var(--cyan); margin-bottom: 30px;
+        }
+        .team-member {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            border-radius: 14px; padding: 20px 24px; margin-bottom: 16px;
+            text-align: left; transition: 0.3s;
+        }
+        .team-member:hover { border-color: var(--gold); background: rgba(255,215,0,0.05); }
+        .team-member .role {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--gold); margin-bottom: 4px;
+        }
+        .team-member .name { font-family: 'Orbitron', monospace; font-size: 15px; }
+
+        /* ── ÖNERİ ── */
+        #page-suggest { display: none; justify-content: center; align-items: flex-start; padding-top: 90px; }
+        #page-suggest.active { display: flex; }
+        .suggest-card {
+            background: var(--glass); backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border); padding: 40px 36px;
+            border-radius: 24px; max-width: 500px; width: 100%;
+        }
+        .suggest-card h2 {
+            font-family: 'Orbitron', monospace; font-size: 18px;
+            color: var(--cyan); margin-bottom: 24px; text-align: center;
+        }
+        .ig { margin-bottom: 16px; }
+        .ig label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.5px; }
+        .ig input, .ig textarea, .ig select {
+            width: 100%; padding: 10px 14px;
+            background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
+            border-radius: 8px; color: white; font-family: 'Rajdhani', sans-serif;
+            font-size: 15px; transition: 0.2s;
+        }
+        .ig input:focus, .ig textarea:focus {
+            outline: none; border-color: var(--cyan);
+            box-shadow: 0 0 0 2px rgba(0,212,255,0.15);
+        }
+        .ig textarea { resize: vertical; min-height: 90px; }
+        .ig input::placeholder, .ig textarea::placeholder { color: rgba(255,255,255,0.3); }
+        .terms-row { display: flex; align-items: flex-start; gap: 10px; margin: 16px 0; font-size: 13px; color: rgba(255,255,255,0.6); }
+        .terms-row input[type=checkbox] { margin-top: 2px; accent-color: var(--cyan); }
+        .send-btn {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            border: none; border-radius: 10px; color: white;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            transition: 0.3s; letter-spacing: 0.5px;
+        }
+        .send-btn:hover { box-shadow: 0 0 20px rgba(0,212,255,0.5); }
+
+        /* ── SERGİ ── */
+        #page-sergi { display: none; flex-direction: column; align-items: center; }
+        #page-sergi.active { display: flex; }
+        #page-sergi h2 {
+            font-family: 'Orbitron', monospace; font-size: 22px;
+            color: var(--cyan); text-shadow: 0 0 12px var(--cyan);
+            margin-bottom: 36px; text-align: center;
+        }
+        .sergi-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
+        .sergi-card {
+            background: var(--glass); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 20px;
+            width: 220px; overflow: hidden; transition: 0.3s;
+        }
+        .sergi-card:hover { transform: translateY(-6px); border-color: var(--cyan); }
+        .sergi-img-box {
+            width: 100%; height: 160px;
+            background: rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-bottom: 1px solid var(--glass-border);
+            position: relative; overflow: hidden;
+        }
+        .sergi-img-box .pear-icon { font-size: 52px; opacity: 0.3; }
+        .sergi-img-box .img-error {
+            font-size: 12px; color: rgba(255,255,255,0.35);
+            margin-top: 8px; text-align: center;
+        }
+        .sergi-info { padding: 18px 16px; }
+        .sergi-info h3 { font-family: 'Orbitron', monospace; font-size: 13px; margin-bottom: 6px; }
+        .sergi-info p { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+        /* ── YETKİLİ PANELİ ── */
+        #page-admin { display: none; flex-direction: column; align-items: center; padding-top: 90px; }
+        #page-admin.active { display: flex; }
+        .admin-login-box {
+            background: var(--glass); backdrop-filter: blur(14px);
+            border: 1px solid var(--glass-border); padding: 40px;
+            border-radius: 20px; text-align: center; max-width: 360px; width: 100%;
+        }
+        .admin-login-box h2 {
+            font-family: 'Orbitron', monospace; font-size: 18px;
+            color: var(--gold); margin-bottom: 24px;
+        }
+        #adminPassword {
+            width: 100%; padding: 12px 16px;
+            background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
+            border-radius: 8px; color: white; font-size: 16px;
+            text-align: center; letter-spacing: 4px; font-family: 'Rajdhani', sans-serif;
+            margin-bottom: 14px;
+        }
+        #adminPassword:focus { outline: none; border-color: var(--gold); }
+        .gold-btn {
+            padding: 12px 32px; background: linear-gradient(135deg, #ffd700, #e6a800);
+            border: none; border-radius: 8px; color: #000;
+            font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s;
+            font-family: 'Rajdhani', sans-serif; width: 100%;
+        }
+        .gold-btn:hover { box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+        #adminPanel { display: none; width: 100%; max-width: 700px; }
+        .admin-panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .admin-panel-header h2 { font-family: 'Orbitron', monospace; color: var(--gold); font-size: 18px; }
+        .admin-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .admin-tab-btn {
+            padding: 8px 20px; border-radius: 8px; border: 1px solid var(--glass-border);
+            background: var(--glass); color: rgba(255,255,255,0.6); cursor: pointer;
+            font-family: 'Rajdhani', sans-serif; font-size: 14px; font-weight: 600;
+            transition: 0.2s;
+        }
+        .admin-tab-btn.active { background: rgba(255,215,0,0.15); color: var(--gold); border-color: var(--gold); }
+        .admin-list {
+            background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border);
+            border-radius: 14px; overflow: hidden; max-height: 500px; overflow-y: auto;
+        }
+        .admin-list::-webkit-scrollbar { width: 4px; }
+        .admin-list::-webkit-scrollbar-thumb { background: var(--gold); }
+        .admin-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06);
+            transition: 0.2s;
+        }
+        .admin-row:hover { background: rgba(255,255,255,0.03); }
+        .admin-row.pinned { background: rgba(255,215,0,0.06); border-left: 3px solid var(--gold); }
+        .admin-row .info { flex: 1; min-width: 0; }
+        .admin-row .info strong { font-size: 14px; display: block; margin-bottom: 3px; }
+        .admin-row .info small { color: rgba(255,255,255,0.45); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px; }
+        .empty-msg { padding: 40px; text-align: center; color: rgba(255,255,255,0.3); font-size: 14px; }
+
+        /* ORDER MODAL */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.88); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-box {
+            background: #fff; color: #111; padding: 32px;
+            border-radius: 20px; width: 92%; max-width: 500px;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-box h2 { font-family: 'Orbitron', monospace; font-size: 18px; margin-bottom: 20px; }
+        .modal-box hr { border-color: #eee; margin: 16px 0; }
+        .mig { margin-bottom: 14px; }
+        .mig label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+        .mig input, .mig textarea {
+            width: 100%; padding: 9px 12px; border: 1px solid #ccc;
+            border-radius: 7px; font-size: 14px; font-family: inherit;
+        }
+        .mig textarea { resize: vertical; min-height: 70px; }
+        .err { color: red; font-size: 11px; font-weight: bold; margin-top: 2px; }
+        .mig input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .order-submit {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            border: none; border-radius: 10px; color: white;
+            font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px;
+        }
+        .cancel-btn { background: none; border: none; color: #888; cursor: pointer; margin-top: 10px; width: 100%; font-size: 14px; }
+        #successBox { display: none; text-align: center; }
+        #successBox .check { font-size: 64px; }
+
+        /* SUCCESS TOAST */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--green); color: white; padding: 12px 28px;
+            border-radius: 50px; font-weight: 700; font-size: 15px;
+            z-index: 9999; opacity: 0; transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
 
 <div id="space"></div>
-<button class="admin-btn" onclick="openAdmin()">🔒 Yetkili Girişi</button>
 
-<div class="container">
-    <h1 style="text-shadow: 0 0 15px #00d4ff;">🍐 PEAR STORE</h1>
-    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+<!-- TAB NAV -->
+<nav class="tab-nav">
+    <div class="logo">🍐 PEAR</div>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('home')">🏠 Ana Menü</button>
+        <button class="tab-btn" onclick="showTab('sergi')">🖼 Sergi</button>
+        <button class="tab-btn" onclick="showTab('suggest')">💡 Öneri Yolla</button>
+        <button class="tab-btn" onclick="showTab('about')">ℹ️ Hakkında</button>
+        <button class="tab-btn gold-tab" onclick="showTab('admin')">🔒 Yetkili Girişi</button>
+    </div>
+</nav>
+
+<!-- ANA MENÜ -->
+<section id="page-home" class="page active">
+    <h1>🍐 PEAR STORE</h1>
+    <p class="tagline">Space Edition — Gelecekten Bugüne Teknoloji</p>
+    <div class="product-grid">
         <div class="product-card"><h3>Pear Mouse</h3><p class="stok-yok">STOK YOK</p></div>
         <div class="product-card"><h3>Pear Keyboard</h3><p class="stok-yok">STOK YOK</p></div>
     </div>
-    <button class="main-btn" onclick="openOrder()">🎨 3D Tasarım & Satın Alım</button>
-</div>
+    <button class="main-btn" onclick="openOrder()">🎨 3D Tasarım &amp; Satın Alım</button>
+</section>
 
-<!-- DEV SİPARİŞ VE ÖDEME FORMU -->
+<!-- SERGİ -->
+<section id="page-sergi" class="page">
+    <h2>🖼 Pear Sergi Alanı</h2>
+    <div class="sergi-grid">
+        <div class="sergi-card">
+            <div class="sergi-img-box">
+                <div class="pear-icon">🍐</div>
+                <div class="img-error">Resim yüklenemedi.</div>
+            </div>
+            <div class="sergi-info">
+                <h3>PearBoard</h3>
+                <p>Klavye serisi</p>
+            </div>
+        </div>
+        <div class="sergi-card">
+            <div class="sergi-img-box">
+                <div class="pear-icon">🍐</div>
+                <div class="img-error">Resim yüklenemedi.</div>
+            </div>
+            <div class="sergi-info">
+                <h3>PearMouse</h3>
+                <p>Fare serisi</p>
+            </div>
+        </div>
+        <div class="sergi-card">
+            <div class="sergi-img-box">
+                <div class="pear-icon">🍐</div>
+                <div class="img-error">Resim yüklenemedi.</div>
+            </div>
+            <div class="sergi-info">
+                <h3>Pear Air</h3>
+                <p>Taşınabilir model</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ÖNERİ -->
+<section id="page-suggest" class="page">
+    <div class="suggest-card">
+        <h2>💡 Bize Öneri Yollayın</h2>
+        <div class="ig">
+            <label>İsim</label>
+            <input type="text" id="sName" placeholder="Adınız Soyadınız">
+        </div>
+        <div class="ig">
+            <label>Sınıf</label>
+            <input type="text" id="sClass" placeholder="Örn: 10-A">
+        </div>
+        <div class="ig">
+            <label>Öneriniz</label>
+            <textarea id="sText" placeholder="Fikirlerinizi yazın..."></textarea>
+        </div>
+        <div class="terms-row">
+            <input type="checkbox" id="sTerms">
+            <span>Koşul ve Şartları Kabul ediyorum. (Gönderilen öneriler yetkili panelinde görünür.)</span>
+        </div>
+        <button class="send-btn" onclick="submitSuggest()">📨 Gönder</button>
+    </div>
+</section>
+
+<!-- HAKKINDA -->
+<section id="page-about" class="page">
+    <div class="about-card">
+        <h2>HTML ÇAĞRI EKIBI</h2>
+        <div class="team-member">
+            <div class="role">Kurucu Başkan</div>
+            <div class="name">Atav Başkan Ömer Faruk Türkoğlu</div>
+        </div>
+        <div class="team-member">
+            <div class="role">Üye</div>
+            <div class="name">Yiğit Hamza Akın</div>
+        </div>
+    </div>
+</section>
+
+<!-- YETKİLİ GİRİŞİ -->
+<section id="page-admin" class="page">
+    <div id="adminLoginBox" class="admin-login-box">
+        <h2>🔒 YETKİLİ GİRİŞİ</h2>
+        <input type="password" id="adminPassword" placeholder="••••" onkeydown="if(event.key==='Enter')doAdminLogin()">
+        <button class="gold-btn" onclick="doAdminLogin()">Giriş Yap</button>
+    </div>
+    <div id="adminPanel">
+        <div class="admin-panel-header">
+            <h2>👑 Yetkili Paneli</h2>
+            <button class="gold-btn" style="width:auto; padding:8px 20px;" onclick="adminLogout()">Çıkış</button>
+        </div>
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" id="atab-orders" onclick="switchAdminTab('orders')">📦 Siparişler</button>
+            <button class="admin-tab-btn" id="atab-suggests" onclick="switchAdminTab('suggests')">💡 İstekler</button>
+        </div>
+        <div id="adminList" class="admin-list"></div>
+    </div>
+</section>
+
+<!-- SİPARİŞ MODAL -->
 <div id="orderModal" class="modal">
-    <div class="white-screen">
+    <div class="modal-box">
         <div id="orderForm">
-            <h2 style="margin-top:0;">🍐 Pear Sipariş Formu</h2>
+            <h2>🍐 Pear Sipariş Formu</h2>
             <hr>
-            <!-- TASARIM BİLGİLERİ -->
-            <div class="input-group">
-                <label>3D Tasarım İsteğiniz:</label>
+            <div class="mig">
+                <label>3D Tasarım İsteğiniz</label>
                 <textarea id="orderText" placeholder="İstediğiniz modeli tarif edin..."></textarea>
             </div>
-            <div class="input-group">
-                <label>Tasarımcıya Not:</label>
-                <textarea id="orderNote" placeholder="Ekstra belirtmek istediğiniz detaylar..."></textarea>
+            <div class="mig">
+                <label>Tasarımcıya Not</label>
+                <textarea id="orderNote" placeholder="Ekstra detaylar..."></textarea>
             </div>
             <hr>
-            <!-- ÖDEME VE İLETİŞİM BİLGİLERİ -->
-            <div class="input-group">
-                <label>E-Posta Adresi:</label>
+            <div class="mig">
+                <label>E-Posta Adresi</label>
                 <input type="email" id="uEmail" placeholder="ornek@gmail.com">
             </div>
-            <div class="input-group">
-                <label>Kart Numarası (16 Hane):</label>
-                <input type="number" id="uCard">
-                <div id="errCard" class="error"></div>
+            <div class="mig">
+                <label>Kart Numarası (16 Hane)</label>
+                <input type="text" id="uCard" maxlength="16" placeholder="0000 0000 0000 0000">
+                <div id="errCard" class="err"></div>
             </div>
             <div style="display:flex; gap:10px;">
-                <div class="input-group" style="flex:1">
-                    <label>Posta Kodu:</label>
-                    <input type="number" id="uZip">
-                    <div id="errZip" class="error"></div>
+                <div class="mig" style="flex:1">
+                    <label>Posta Kodu</label>
+                    <input type="text" id="uZip" maxlength="5" placeholder="34000">
+                    <div id="errZip" class="err"></div>
                 </div>
-                <div class="input-group" style="flex:1">
-                    <label>SKT (MM/YY):</label>
+                <div class="mig" style="flex:1">
+                    <label>SKT (MM/YY)</label>
                     <input type="text" id="uDate" placeholder="05/28">
                 </div>
             </div>
-            <p style="font-size: 11px; text-align: left;">
-                <input type="checkbox" id="uTerms"> Şart ve Koşulları kabul ediyorum. (jsadıkhjasıkdhajd)
-            </p>
-            <button onclick="submitOrder()" style="background: #28a745; color: white; width: 100%; padding: 15px; font-size: 16px;">SİPARİŞİ TAMAMLA</button>
-            <button onclick="closeModal('orderModal')" style="background:none; color:gray; margin-top:10px;">Vazgeç</button>
+            <div style="display:flex; align-items:center; gap:8px; margin:10px 0; font-size:13px; color:#555;">
+                <input type="checkbox" id="uTerms"> Şart ve Koşulları kabul ediyorum.
+            </div>
+            <button class="order-submit" onclick="submitOrder()">SİPARİŞİ TAMAMLA</button>
+            <button class="cancel-btn" onclick="closeOrderModal()">Vazgeç</button>
         </div>
-
-        <!-- BAŞARI EKRANI -->
-        <div id="successBox" style="display:none;">
-            <div style="font-size:60px; color:#28a745;">✔</div>
-            <h3>Siparişiniz Alındı!</h3>
-            <p>Tasarımınız ve ödemeniz başarıyla yetkiliye iletildi.</p>
-            <button onclick="closeModal('orderModal')" style="background:#007bff; color:white;">Ana Menüye Dön</button>
+        <div id="successBox">
+            <div class="check">✅</div>
+            <h3 style="margin:12px 0 8px; font-family:'Orbitron',monospace;">Siparişiniz Alındı!</h3>
+            <p style="color:#555; margin-bottom:20px;">Tasarımınız ve ödemeniz yetkiliye iletildi.</p>
+            <button class="order-submit" style="background:linear-gradient(135deg,#007bff,#0056b3);" onclick="closeOrderModal()">Ana Menüye Dön</button>
         </div>
     </div>
 </div>
 
-<!-- YETKİLİ PANELİ -->
-<div id="adminModal" class="modal">
-    <div class="white-screen" style="max-width: 600px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 style="margin:0;">👑 Yetkili Paneli</h2>
-            <button onclick="closeModal('adminModal')" style="background:red; color:white;">KAPAT</button>
-        </div>
-        <div id="adminList" class="admin-box"></div>
-    </div>
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('pear_final_v1')) || [];
+    /* ── STATE ── */
+    let db = JSON.parse(localStorage.getItem('pear_orders_v2')) || [];
+    let suggests = JSON.parse(localStorage.getItem('pear_suggests_v1')) || [];
+    let adminUnlocked = false;
+    let currentAdminTab = 'orders';
 
-    function save() { localStorage.setItem('pear_final_v1', JSON.stringify(db)); }
+    function save() {
+        localStorage.setItem('pear_orders_v2', JSON.stringify(db));
+        localStorage.setItem('pear_suggests_v1', JSON.stringify(suggests));
+    }
 
-    // UZAY EFEKTİ
+    /* ── SPACE BG ── */
     const space = document.getElementById('space');
-    for(let i=0; i<25; i++) {
+    for(let i = 0; i < 22; i++) {
         let p = document.createElement('div'); p.className = 'pear-fall'; p.innerHTML = '🍐';
         p.style.left = Math.random() * 100 + 'vw';
-        p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        p.style.top = -(Math.random() * 100) + 'vh';
+        p.style.animationDuration = (Math.random() * 4 + 3) + 's';
+        p.style.animationDelay = '-' + (Math.random() * 5) + 's';
         space.appendChild(p);
     }
 
-    function openOrder() { document.getElementById('orderModal').style.display = 'flex'; }
-    function closeModal(id) { 
-        document.getElementById(id).style.display = 'none';
+    /* ── TAB NAVIGATION ── */
+    function showTab(tab) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('page-' + tab).classList.add('active');
+        const btns = document.querySelectorAll('.tab-btn');
+        const map = { home: 0, sergi: 1, suggest: 2, about: 3, admin: 4 };
+        btns[map[tab]].classList.add('active');
+    }
+
+    /* ── ORDER MODAL ── */
+    function openOrder() {
+        document.getElementById('orderModal').style.display = 'flex';
         document.getElementById('orderForm').style.display = 'block';
         document.getElementById('successBox').style.display = 'none';
     }
+    function closeOrderModal() {
+        document.getElementById('orderModal').style.display = 'none';
+    }
 
     function submitOrder() {
-        let text = document.getElementById('orderText').value;
-        let note = document.getElementById('orderNote').value;
-        let email = document.getElementById('uEmail').value;
-        let card = document.getElementById('uCard').value;
-        let zip = document.getElementById('uZip').value;
-        let date = document.getElementById('uDate').value;
-        let terms = document.getElementById('uTerms').checked;
+        const text = document.getElementById('orderText').value.trim();
+        const note = document.getElementById('orderNote').value.trim();
+        const email = document.getElementById('uEmail').value.trim();
+        const card = document.getElementById('uCard').value.replace(/\s/g,'');
+        const zip = document.getElementById('uZip').value.trim();
+        const date = document.getElementById('uDate').value.trim();
+        const terms = document.getElementById('uTerms').checked;
 
-        if(card.length === 16 && zip.length === 5 && terms && text) {
-            db.push({
-                id: Date.now(),
-                title: "📦 YENİ SİPARİŞ: " + text,
-                info: `Email: ${email} | Not: ${note} | Kart: ${card.substring(0,4)}...`,
-                fix: false
-            });
-            save();
-            document.getElementById('orderForm').style.display = 'none';
-            document.getElementById('successBox').style.display = 'block';
+        document.getElementById('errCard').textContent = '';
+        document.getElementById('errZip').textContent = '';
+
+        let ok = true;
+        if(card.length !== 16) { document.getElementById('errCard').textContent = '16 haneli kart numarası girin.'; ok = false; }
+        if(zip.length !== 5) { document.getElementById('errZip').textContent = '5 haneli posta kodu girin.'; ok = false; }
+        if(!terms) { alert('Lütfen şart ve koşulları onaylayın.'); return; }
+        if(!text) { alert('Lütfen 3D tasarım isteğinizi yazın.'); return; }
+        if(!ok) return;
+
+        db.push({
+            id: Date.now(), type: 'order',
+            title: '📦 ' + text,
+            info: 'Email: ' + email + ' | Not: ' + (note||'—') + ' | Kart: ' + card.substring(0,4) + '****',
+            pin: false
+        });
+        save();
+        document.getElementById('orderForm').style.display = 'none';
+        document.getElementById('successBox').style.display = 'block';
+    }
+
+    /* ── SUGGEST ── */
+    function submitSuggest() {
+        const name = document.getElementById('sName').value.trim();
+        const cls = document.getElementById('sClass').value.trim();
+        const text = document.getElementById('sTExt') ? document.getElementById('sTExt').value.trim() : document.getElementById('sText').value.trim();
+        const terms = document.getElementById('sTerms').checked;
+
+        if(!name) { alert('Lütfen isim girin.'); return; }
+        if(!cls) { alert('Lütfen sınıf girin.'); return; }
+        if(!text) { alert('Lütfen önerinizi yazın.'); return; }
+        if(!terms) { alert('Koşul ve Şartları kabul edin.'); return; }
+
+        suggests.push({
+            id: Date.now(),
+            title: '💡 ' + name + ' (' + cls + ')',
+            info: text,
+            pin: false
+        });
+        save();
+        document.getElementById('sName').value = '';
+        document.getElementById('sClass').value = '';
+        document.getElementById('sText').value = '';
+        document.getElementById('sTerms').checked = false;
+        showToast('✅ Öneriniz gönderildi!');
+    }
+
+    /* ── ADMIN ── */
+    function doAdminLogin() {
+        const pw = document.getElementById('adminPassword').value;
+        if(pw === 'piır91181') {
+            adminUnlocked = true;
+            document.getElementById('adminLoginBox').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            renderAdmin();
         } else {
-            alert("Lütfen tüm alanları (16 hane kart, 5 hane posta kodu) doğru doldurun ve şartları onaylayın!");
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminPassword').style.borderColor = 'red';
+            setTimeout(() => document.getElementById('adminPassword').style.borderColor = '', 1000);
+            alert('Hatalı şifre!');
         }
     }
 
-    function openAdmin() {
-        if(prompt("Şifre:") === "piır") {
-            document.getElementById('adminModal').style.display = 'flex';
-            render();
-        } else { alert("Hatalı Şifre!"); }
+    function adminLogout() {
+        adminUnlocked = false;
+        document.getElementById('adminLoginBox').style.display = 'block';
+        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('adminPassword').value = '';
     }
 
-    function render() {
+    function switchAdminTab(tab) {
+        currentAdminTab = tab;
+        document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('atab-' + tab).classList.add('active');
+        renderAdmin();
+    }
+
+    function renderAdmin() {
         const list = document.getElementById('adminList');
-        list.innerHTML = "";
-        let sorted = [...db].sort((a,b) => b.fix - a.fix);
-        if(sorted.length === 0) { list.innerHTML = "<p style='padding:20px;'>Henüz sipariş yok Efendim.</p>"; return; }
+        list.innerHTML = '';
+        const data = currentAdminTab === 'orders' ? db : suggests;
+        const sorted = [...data].sort((a,b) => b.pin - a.pin);
+
+        if(sorted.length === 0) {
+            list.innerHTML = '<div class="empty-msg">Henüz kayıt yok.</div>';
+            return;
+        }
 
         sorted.forEach(item => {
-            let row = document.createElement('div');
-            row.className = `gmail-row ${item.fix ? 'sabit' : ''}`;
+            const row = document.createElement('div');
+            row.className = 'admin-row' + (item.pin ? ' pinned' : '');
             row.innerHTML = `
-                <div style="flex:1">
-                    <strong>${item.title}</strong><br>
-                    <small style="color:#666;">${item.info}</small>
+                <div class="info">
+                    <strong>${item.title}</strong>
+                    <small>${item.info}</small>
                 </div>
-                <button onclick="pin(${item.id})" style="background:none; font-size:20px;">${item.fix ? '📌' : '📍'}</button>
-                <button onclick="del(${item.id})" style="background:none; font-size:20px;">🗑️</button>
+                <button class="icon-btn" onclick="togglePin('${currentAdminTab}',${item.id})" title="Sabitle">${item.pin ? '📌' : '📍'}</button>
+                <button class="icon-btn" onclick="deleteItem('${currentAdminTab}',${item.id})" title="Sil">🗑️</button>
             `;
             list.appendChild(row);
         });
     }
 
-    function del(id) { db = db.filter(x => x.id !== id); save(); render(); }
-    function pin(id) { let i = db.find(x => x.id === id); i.fix = !i.fix; save(); render(); }
-</script>
+    function togglePin(type, id) {
+        const arr = type === 'orders' ? db : suggests;
+        const item = arr.find(x => x.id === id);
+        if(item) { item.pin = !item.pin; save(); renderAdmin(); }
+    }
 
+    function deleteItem(type, id) {
+        if(type === 'orders') db = db.filter(x => x.id !== id);
+        else suggests = suggests.filter(x => x.id !== id);
+        save(); renderAdmin();
+    }
+
+    /* ── TOAST ── */
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2800);
+    }
+</script>
 </body>
 </html>
