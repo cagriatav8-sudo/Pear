@@ -1,142 +1,146 @@
-// --- SİSTEM HAFIZASI (LocalStorage) ---
-let requests = JSON.parse(localStorage.getItem('pearRequests')) || [];
-
-// Sayfa yüklendiğinde uzayı başlat
-createPears();
-
-// --- 3D İSTEK GÖNDERME ---
-function send3DRequest() {
-    let txt = document.getElementById('threeDText').value;
-    let note = document.getElementById('threeDNote').value;
-    
-    if(txt) {
-        let yeniIstek = {
-            id: Date.now(),
-            icerik: txt,
-            not: note || "Not yok",
-            sabit: false
-        };
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pear Store - Space Edition</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; color: white; font-family: sans-serif; }
+        #space { position: fixed; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
+        .pear-fall { position: absolute; font-size: 30px; animation: fall linear infinite; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
         
-        requests.push(yeniIstek);
-        kaydet(); // Tarayıcıya kaydet
+        .container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .product-card { background: rgba(255, 255, 255, 0.1); border: 2px solid #555; padding: 20px; border-radius: 15px; text-align: center; margin: 10px; width: 250px; }
+        .stok-yok { color: #ff4d4d; font-weight: bold; }
         
-        alert("Pear 3D İsteğin İletildi!");
-        document.getElementById('threeDText').value = "";
-        document.getElementById('threeDNote').value = "";
-        closeModal('threeDModal');
-    }
-}
+        button { padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
+        .admin-btn { position: fixed; right: 20px; top: 20px; background: gold; }
+        .design-3d-btn { background: #00d4ff; color: white; margin-top: 20px; font-size: 18px; }
 
-// --- YETKİLİ PANELİ (GELİŞMİŞ) ---
-function openAdmin() {
-    let pass = prompt("Yetkili Şifresi:");
-    if(pass === "piır") {
-        renderAdminPanel();
-    } else {
-        alert("Hatalı Şifre!");
-    }
-}
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
+        .white-screen { background: white; color: black; padding: 30px; border-radius: 20px; width: 85%; max-width: 450px; text-align: center; }
+        
+        /* Gmail Satırı Stili */
+        .gmail-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px; text-align: left; transition: 0.3s; }
+        .gmail-row:hover { background: #f5f5f5; }
+        .sabitlenmis { background: #fff9c4 !important; }
+        
+        .input-group { text-align: left; margin-bottom: 10px; }
+        .input-group input, .input-group textarea { width: 100%; padding: 8px; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; }
+        .error { color: red; font-size: 12px; }
+    </style>
+</head>
+<body>
 
-function renderAdminPanel() {
-    // Admin Modal Tasarımı
-    let adminHtml = `
-        <div id="adminPanel" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; color:black; z-index:1000; overflow-y:auto; padding:20px; box-sizing:border-box;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2>👑 Yetkili Paneli</h2>
-                <button onclick="document.getElementById('adminPanel').remove()" style="background:red; color:white;">PANELİ KAPAT</button>
-            </div>
-            <hr>
-            <div id="istekListesi"></div>
+<div id="space"></div>
+<button class="admin-btn" onclick="openAdmin()">🔒 Yetkili Girişi</button>
+
+<div class="container">
+    <h1>🍐 PEAR STORE - SPACE</h1>
+    <div id="product-list" style="display: flex; flex-wrap: wrap; justify-content: center;">
+        <div class="product-card"><h3>Pear Mouse</h3><p class="stok-yok">STOK YOK</p></div>
+        <div class="product-card"><h3>Pear Keyboard</h3><p class="stok-yok">STOK YOK</p></div>
+    </div>
+    <button class="design-3d-btn" onclick="open3D()">🎨 3D Tasarım İsteği</button>
+</div>
+
+<!-- 3D TASARIM MODAL -->
+<div id="threeDModal" class="modal">
+    <div class="white-screen">
+        <h2>🍐 Pear 3D Tasarım</h2>
+        <div class="input-group"><label>İsteğiniz:</label><textarea id="threeDText"></textarea></div>
+        <div class="input-group"><label>Notunuz:</label><textarea id="threeDNote"></textarea></div>
+        <button onclick="send3DRequest()" style="background:#00d4ff; color:white; width:100%">GÖNDER</button>
+        <button onclick="closeModal('threeDModal')" style="background:none; color:gray; margin-top:10px">Vazgeç</button>
+    </div>
+</div>
+
+<!-- YETKİLİ PANELİ MODAL -->
+<div id="adminModal" class="modal">
+    <div class="white-screen" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>👑 Gelen Siparişler</h2>
+            <button onclick="closeModal('adminModal')" style="background:red; color:white;">X</button>
         </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', adminHtml);
-    listele();
-}
+        <div id="istekListesi"></div>
+    </div>
+</div>
 
-function listele() {
-    const listeDiv = document.getElementById('istekListesi');
-    listeDiv.innerHTML = "";
+<script>
+    // HAFIZA SİSTEMİ
+    let requests = JSON.parse(localStorage.getItem('pearData')) || [];
 
-    // Sabitlenenleri en üste al
-    let siraliListe = [...requests].sort((a, b) => b.sabit - a.sabit);
+    function save() { localStorage.setItem('pearData', JSON.stringify(requests)); }
 
-    if(siraliListe.length === 0) {
-        listeDiv.innerHTML = "<h3>Henüz sipariş veya istek yok Efendim.</h3>";
-        return;
+    // UZAY EFEKTİ
+    function createPears() {
+        const space = document.getElementById('space');
+        for(let i=0; i<30; i++) {
+            let p = document.createElement('div');
+            p.className = 'pear-fall'; p.innerHTML = '🍐';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            space.appendChild(p);
+        }
+    }
+    createPears();
+
+    // 3D İSTEK GÖNDER
+    function open3D() { document.getElementById('threeDModal').style.display = 'flex'; }
+    function send3DRequest() {
+        let txt = document.getElementById('threeDText').value;
+        let note = document.getElementById('threeDNote').value;
+        if(txt) {
+            requests.push({ id: Date.now(), icerik: txt, not: note, sabit: false });
+            save();
+            alert("İsteğiniz İletildi!");
+            document.getElementById('threeDText').value = "";
+            document.getElementById('threeDNote').value = "";
+            closeModal('threeDModal');
+        }
     }
 
-    siraliListe.forEach(istek => {
-        let div = document.createElement('div');
-        div.style = `border: 1px solid #ccc; margin: 10px 0; padding: 15px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; background: ${istek.sabit ? '#fff9c4' : '#fff'}`;
+    // YETKİLİ GİRİŞİ
+    function openAdmin() {
+        let pass = prompt("Şifre:");
+        if(pass === "piır") {
+            document.getElementById('adminModal').style.display = 'flex';
+            listele();
+        } else { alert("Yanlış!"); }
+    }
+
+    function listele() {
+        const listeDiv = document.getElementById('istekListesi');
+        listeDiv.innerHTML = "";
+        let sirali = [...requests].sort((a,b) => b.sabit - a.sabit);
         
-        div.innerHTML = `
-            <div style="text-align:left;">
-                <strong>İstek:</strong> ${istek.icerik} <br>
-                <strong>Not:</strong> <small>${istek.not}</small>
-            </div>
-            <div>
-                <button onclick="sabitle(${istek.id})" style="background:none; font-size:20px; cursor:pointer;">${istek.sabit ? '📌' : '📍'}</button>
-                <button onclick="sil(${istek.id})" style="background:none; font-size:20px; cursor:pointer;">🗑️</button>
-            </div>
-        `;
-        listeDiv.appendChild(div);
-    });
-}
+        if(sirali.length === 0) { listeDiv.innerHTML = "<p>Sipariş yok Efendim.</p>"; return; }
 
-// --- YARDIMCI FONKSİYONLAR ---
-function kaydet() {
-    localStorage.setItem('pearRequests', JSON.stringify(requests));
-}
-
-function sil(id) {
-    if(confirm("Bu isteği silmek istediğine emin misin Efendim?")) {
-        requests = requests.filter(i => i.id !== id);
-        kaydet();
-        listele();
+        sirali.forEach(item => {
+            let row = document.createElement('div');
+            row.className = `gmail-row ${item.sabit ? 'sabitlenmis' : ''}`;
+            row.innerHTML = `
+                <div style="flex:1">
+                    <span style="font-weight:bold">${item.icerik}</span> - 
+                    <span style="color:#666; font-size:12px">${item.not}</span>
+                </div>
+                <div>
+                    <button onclick="sabitle(${item.id})" style="background:none">📌</button>
+                    <button onclick="sil(${item.id})" style="background:none">🗑️</button>
+                </div>
+            `;
+            listeDiv.appendChild(row);
+        });
     }
-}
 
-function sabitle(id) {
-    let index = requests.findIndex(i => i.id === id);
-    requests[index].sabit = !requests[index].sabit;
-    kaydet();
-    listele();
-}
-
-function validateAndPay() {
-    let card = document.getElementById('cardNum').value;
-    let zip = document.getElementById('zipCode').value;
-    let date = document.getElementById('expiry').value;
-
-    if(card.length === 16 && zip.length === 5 && date.includes("/")) {
-        // Ödeme yapılınca bunu da "istek" olarak kaydet ki admin görebilsin
-        let yeniSiparis = {
-            id: Date.now(),
-            icerik: "💰 YENİ SATIN ALIM (Ödeme Tamamlandı)",
-            not: `Kart: ${card.substring(0,4)}... | Zip: ${zip}`,
-            sabit: false
-        };
-        requests.push(yeniSiparis);
-        kaydet();
-
-        document.getElementById('formFields').style.display = 'none';
-        document.getElementById('successScreen').style.display = 'block';
-    } else {
-        alert("Bilgileri kontrol et Efendim!");
+    function sil(id) { requests = requests.filter(i => i.id !== id); save(); listele(); }
+    function sabitle(id) { 
+        let i = requests.find(x => x.id === id); 
+        i.sabit = !i.sabit; save(); listele(); 
     }
-}
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+</script>
 
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-function createPears() {
-    const space = document.getElementById('space');
-    for(let i=0; i<30; i++) {
-        let p = document.createElement('div');
-        p.className = 'pear-fall';
-        p.innerHTML = '🍐';
-        p.style.left = Math.random() * 100 + 'vw';
-        p.style.animationDuration = (Math.random() * 3 + 2) + 's';
-        p.style.opacity = Math.random();
-        space.appendChild(p);
-    }
-}
+</body>
+</html>
