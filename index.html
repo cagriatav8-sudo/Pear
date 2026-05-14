@@ -5,30 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pear Store - Space Edition</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; color: white; font-family: sans-serif; }
-        #space { position: fixed; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
-        .pear-fall { position: absolute; font-size: 30px; animation: fall linear infinite; }
-        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+        body { margin: 0; overflow: hidden; background: #000; color: white; font-family: 'Segoe UI', sans-serif; }
         
+        /* UZAY ARKA PLANI */
+        #space { position: fixed; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
+        .pear-fall { position: absolute; font-size: 30px; animation: fall linear infinite; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+        /* ANA SAYFA TASARIMI */
         .container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .product-card { background: rgba(255, 255, 255, 0.1); border: 2px solid #555; padding: 20px; border-radius: 15px; text-align: center; margin: 10px; width: 250px; }
+        .product-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 2px solid #555; padding: 20px; border-radius: 15px; text-align: center; margin: 10px; width: 250px; }
         .stok-yok { color: #ff4d4d; font-weight: bold; }
         
-        button { padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
-        .admin-btn { position: fixed; right: 20px; top: 20px; background: gold; }
-        .design-3d-btn { background: #00d4ff; color: white; margin-top: 20px; font-size: 18px; }
+        button { padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; transition: 0.3s; }
+        .admin-btn { position: fixed; right: 20px; top: 20px; background: gold; color: black; z-index: 10; }
+        .design-3d-btn { background: #00d4ff; color: white; margin-top: 30px; font-size: 18px; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
-        .white-screen { background: white; color: black; padding: 30px; border-radius: 20px; width: 85%; max-width: 450px; text-align: center; }
+        /* MODAL PENCERELER */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .white-screen { background: white; color: black; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; text-align: center; }
         
-        /* Gmail Satırı Stili */
-        .gmail-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px; text-align: left; transition: 0.3s; }
-        .gmail-row:hover { background: #f5f5f5; }
-        .sabitlenmis { background: #fff9c4 !important; }
-        
-        .input-group { text-align: left; margin-bottom: 10px; }
-        .input-group input, .input-group textarea { width: 100%; padding: 8px; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc; }
-        .error { color: red; font-size: 12px; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-group label { font-weight: bold; display: block; margin-bottom: 5px; }
+        .input-group input, .input-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .error-text { color: red; font-size: 12px; display: block; margin-top: 5px; }
+
+        /* YETKİLİ PANELİ SATIRLARI */
+        .admin-content { max-height: 400px; overflow-y: auto; margin-top: 20px; border: 1px solid #eee; border-radius: 10px; }
+        .gmail-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 12px; }
+        .sabitlenmis { background: #fff9c4 !important; border-left: 5px solid gold; }
+
+        /* BAŞARI ANİMASYONU */
+        .success-icon { width: 80px; height: 80px; border: 5px solid #007bff; border-radius: 50%; margin: 20px auto; position: relative; }
+        .checkmark { position: absolute; top: 20px; left: 15px; width: 40px; height: 20px; border-left: 5px solid #007bff; border-bottom: 5px solid #007bff; transform: rotate(-45deg); }
     </style>
 </head>
 <body>
@@ -37,18 +46,60 @@
 <button class="admin-btn" onclick="openAdmin()">🔒 Yetkili Girişi</button>
 
 <div class="container">
-    <h1>🍐 PEAR STORE - SPACE</h1>
-    <div id="product-list" style="display: flex; flex-wrap: wrap; justify-content: center;">
-        <div class="product-card"><h3>Pear Mouse</h3><p class="stok-yok">STOK YOK</p></div>
-        <div class="product-card"><h3>Pear Keyboard</h3><p class="stok-yok">STOK YOK</p></div>
+    <h1 style="text-shadow: 0 0 10px #00d4ff;">🍐 PEAR STORE</h1>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+        <div class="product-card">
+            <h3>Pear Mouse</h3>
+            <p class="stok-yok">STOK YOK</p>
+            <button onclick="openPay('Pear Mouse')" style="background: #555; color: white;">Satın Al</button>
+        </div>
+        <div class="product-card">
+            <h3>Pear Keyboard</h3>
+            <p class="stok-yok">STOK YOK</p>
+            <button onclick="openPay('Pear Keyboard')" style="background: #555; color: white;">Satın Al</button>
+        </div>
     </div>
-    <button class="design-3d-btn" onclick="open3D()">🎨 3D Tasarım İsteği</button>
+    <button class="design-3d-btn" onclick="openModal('threeDModal')">🎨 3D Tasarım İsteği</button>
 </div>
 
-<!-- 3D TASARIM MODAL -->
+<!-- ÖDEME EKRANI -->
+<div id="payModal" class="modal">
+    <div class="white-screen">
+        <div id="payForm">
+            <h2 id="buyTitle">Ödeme Bilgileri</h2>
+            <div class="input-group">
+                <label>Kart Numarası (16 Hane)</label>
+                <input type="number" id="cardNumber" placeholder="xxxx xxxx xxxx xxxx">
+                <span id="cardErr" class="error-text"></span>
+            </div>
+            <div class="input-group">
+                <label>Posta Kodu (5 Hane)</label>
+                <input type="number" id="zipCode">
+                <span id="zipErr" class="error-text"></span>
+            </div>
+            <div class="input-group">
+                <label>Son Kullanma Tarihi (MM/YY)</label>
+                <input type="text" id="expiryDate" placeholder="05/28">
+                <small style="color: #666;">Kartın üzerindeki son kullanma tarihini ay ve yıl olarak giriniz.</small>
+                <span id="dateErr" class="error-text"></span>
+            </div>
+            <p style="font-size: 11px; text-align: left;">
+                <input type="checkbox" id="termsBox"> Şart ve Koşulları kabul ediyorum. (jsadıkhjasıkdhajd)
+            </p>
+            <button onclick="completePayment()" style="background: #28a745; color: white; width: 100%; padding: 15px;">GÖNDER</button>
+        </div>
+        <div id="paySuccess" style="display: none;">
+            <div class="success-icon"><div class="checkmark"></div></div>
+            <h3>İşleminiz Onaylandı</h3>
+            <button onclick="closeModal('payModal')" style="background: #007bff; color: white;">Kapat</button>
+        </div>
+    </div>
+</div>
+
+<!-- 3D TASARIM PENCERESİ -->
 <div id="threeDModal" class="modal">
     <div class="white-screen">
-        <h2>🍐 Pear 3D Tasarım</h2>
+        <h2>🎨 3D Tasarım İsteği</h2>
         <div class="input-group"><label>İsteğiniz:</label><textarea id="threeDText"></textarea></div>
         <div class="input-group"><label>Notunuz:</label><textarea id="threeDNote"></textarea></div>
         <button onclick="send3DRequest()" style="background:#00d4ff; color:white; width:100%">GÖNDER</button>
@@ -56,90 +107,112 @@
     </div>
 </div>
 
-<!-- YETKİLİ PANELİ MODAL -->
+<!-- YETKİLİ PANELİ -->
 <div id="adminModal" class="modal">
-    <div class="white-screen" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+    <div class="white-screen" style="max-width: 600px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2>👑 Gelen Siparişler</h2>
-            <button onclick="closeModal('adminModal')" style="background:red; color:white;">X</button>
+            <h2 style="margin:0;">👑 Yetkili Paneli</h2>
+            <button onclick="closeModal('adminModal')" style="background:#ff4d4d; color:white;">PANELİ KAPAT</button>
         </div>
-        <div id="istekListesi"></div>
+        <div id="istekListesi" class="admin-content"></div>
     </div>
 </div>
 
 <script>
-    // HAFIZA SİSTEMİ
-    let requests = JSON.parse(localStorage.getItem('pearData')) || [];
+    let requests = JSON.parse(localStorage.getItem('pear_data')) || [];
+    let currentItem = "";
 
-    function save() { localStorage.setItem('pearData', JSON.stringify(requests)); }
+    function save() { localStorage.setItem('pear_data', JSON.stringify(requests)); }
 
     // UZAY EFEKTİ
-    function createPears() {
-        const space = document.getElementById('space');
-        for(let i=0; i<30; i++) {
-            let p = document.createElement('div');
-            p.className = 'pear-fall'; p.innerHTML = '🍐';
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.animationDuration = (Math.random() * 3 + 2) + 's';
-            space.appendChild(p);
+    const space = document.getElementById('space');
+    for(let i=0; i<25; i++) {
+        let p = document.createElement('div');
+        p.className = 'pear-fall'; p.innerHTML = '🍐';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        space.appendChild(p);
+    }
+
+    // MODAL FONKSİYONLARI
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { 
+        document.getElementById(id).style.display = 'none';
+        if(id === 'payModal') {
+            document.getElementById('payForm').style.display = 'block';
+            document.getElementById('paySuccess').style.display = 'none';
         }
     }
-    createPears();
 
-    // 3D İSTEK GÖNDER
-    function open3D() { document.getElementById('threeDModal').style.display = 'flex'; }
+    // 3D İSTEK
     function send3DRequest() {
-        let txt = document.getElementById('threeDText').value;
-        let note = document.getElementById('threeDNote').value;
-        if(txt) {
-            requests.push({ id: Date.now(), icerik: txt, not: note, sabit: false });
+        let t = document.getElementById('threeDText').value;
+        let n = document.getElementById('threeDNote').value;
+        if(t) {
+            requests.push({ id: Date.now(), title: "🎨 3D İSTEK: " + t, note: n, sabit: false });
             save();
-            alert("İsteğiniz İletildi!");
-            document.getElementById('threeDText').value = "";
-            document.getElementById('threeDNote').value = "";
+            alert("İletildi!");
             closeModal('threeDModal');
         }
     }
 
-    // YETKİLİ GİRİŞİ
-    function openAdmin() {
-        let pass = prompt("Şifre:");
-        if(pass === "piır") {
-            document.getElementById('adminModal').style.display = 'flex';
-            listele();
-        } else { alert("Yanlış!"); }
+    // ÖDEME SİSTEMİ
+    function openPay(name) {
+        currentItem = name;
+        openModal('payModal');
     }
 
-    function listele() {
-        const listeDiv = document.getElementById('istekListesi');
-        listeDiv.innerHTML = "";
-        let sirali = [...requests].sort((a,b) => b.sabit - a.sabit);
-        
-        if(sirali.length === 0) { listeDiv.innerHTML = "<p>Sipariş yok Efendim.</p>"; return; }
+    function completePayment() {
+        let card = document.getElementById('cardNumber').value;
+        let zip = document.getElementById('zipCode').value;
+        let date = document.getElementById('expiryDate').value;
+        let terms = document.getElementById('termsBox').checked;
 
-        sirali.forEach(item => {
+        let ok = true;
+        if(card.length !== 16) { document.getElementById('cardErr').innerText = "16 hane olmalıdır!"; ok = false; }
+        if(zip.length !== 5) { document.getElementById('zipErr').innerText = "5 hane olmalıdır!"; ok = false; }
+        if(!date.includes("/") || date.length < 5) { document.getElementById('dateErr').innerText = "Geçersiz tarih!"; ok = false; }
+        if(!terms) { alert("Şartları kabul etmelisiniz!"); ok = false; }
+
+        if(ok) {
+            requests.push({ id: Date.now(), title: "💰 SATIN ALIM: " + currentItem, note: "Kart: " + card.substring(0,4) + "...", sabit: false });
+            save();
+            document.getElementById('payForm').style.display = 'none';
+            document.getElementById('paySuccess').style.display = 'block';
+        }
+    }
+
+    // YETKİLİ PANELİ
+    function openAdmin() {
+        if(prompt("Şifre:") === "piır") {
+            openModal('adminModal');
+            render();
+        } else { alert("Hatalı!"); }
+    }
+
+    function render() {
+        const div = document.getElementById('istekListesi');
+        div.innerHTML = "";
+        let sorted = [...requests].sort((a,b) => b.sabit - a.sabit);
+        
+        if(sorted.length === 0) { div.innerHTML = "<p>Sipariş yok Efendim.</p>"; return; }
+
+        sorted.forEach(i => {
             let row = document.createElement('div');
-            row.className = `gmail-row ${item.sabit ? 'sabitlenmis' : ''}`;
+            row.className = `gmail-row ${i.sabit ? 'sabitlenmis' : ''}`;
             row.innerHTML = `
-                <div style="flex:1">
-                    <span style="font-weight:bold">${item.icerik}</span> - 
-                    <span style="color:#666; font-size:12px">${item.not}</span>
+                <div style="flex:1; text-align:left;">
+                    <strong>${i.title}</strong><br><small>${i.note}</small>
                 </div>
-                <div>
-                    <button onclick="sabitle(${item.id})" style="background:none">📌</button>
-                    <button onclick="sil(${item.id})" style="background:none">🗑️</button>
-                </div>
+                <button onclick="pin(${i.id})" style="background:none">📌</button>
+                <button onclick="del(${i.id})" style="background:none">🗑️</button>
             `;
-            listeDiv.appendChild(row);
+            div.appendChild(row);
         });
     }
 
-    function sil(id) { requests = requests.filter(i => i.id !== id); save(); listele(); }
-    function sabitle(id) { 
-        let i = requests.find(x => x.id === id); 
-        i.sabit = !i.sabit; save(); listele(); 
-    }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function del(id) { requests = requests.filter(x => x.id !== id); save(); render(); }
+    function pin(id) { let i = requests.find(x => x.id === id); i.sabit = !i.sabit; save(); render(); }
 </script>
 
 </body>
