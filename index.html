@@ -6,7 +6,7 @@
     <title>Pear Store - Space Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600&display=swap');
-        :root { --cyan: #00d4ff; --gold: #ffd700; --red: #ff4d4d; --glass: rgba(255,255,255,0.07); --glass-border: rgba(255,255,255,0.15); }
+        :root { --cyan: #00d4ff; --gold: #ffd700; --glass: rgba(255,255,255,0.07); --glass-border: rgba(255,255,255,0.15); }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { overflow-x: hidden; background: #000; color: white; font-family: 'Rajdhani', sans-serif; min-height: 100vh; }
         #space { position: fixed; width: 100vw; height: 100vh; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
@@ -21,7 +21,7 @@
         .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); padding: 25px; border-radius: 20px; max-width: 600px; margin: 0 auto 20px; }
         .product-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         .product-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 10px; border-radius: 15px; width: 190px; }
-        .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; background: #111; display: block; }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; background: #111; display: block; border: 1px solid var(--glass-border); }
         input, textarea { width: 100%; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 8px; color: white; margin-bottom: 10px; font-family: inherit; }
         .main-btn { background: var(--cyan); color: #000; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
@@ -36,7 +36,7 @@
         <button class="tab-btn" onclick="showTab('news')">📰 Haberler</button>
         <button class="tab-btn" onclick="showTab('giveaway')">🎁 Çekiliş</button>
         <button class="tab-btn" onclick="showTab('about')">ℹ️ Ekip</button>
-        <button class="tab-btn" onclick="showTab('admin')" style="color:var(--gold);">🔒 Yetkili</button>
+        <button class="tab-btn gold-tab" onclick="showTab('admin')" style="color:var(--gold);">🔒 Yetkili</button>
     </div>
 </nav>
 
@@ -44,11 +44,12 @@
 <section id="page-home" class="page active">
     <h1 style="font-family:'Orbitron'; color:var(--cyan); margin-bottom:30px;">PEAR STORE</h1>
     <div class="product-grid">
-        <div class="product-card"><img src="image_87ba7e.png"><h3>TPear 19 Pro</h3></div>
-        <div class="product-card"><img src="image_87baf1.png"><h3>TPear 20 Air</h3></div>
-        <div class="product-card"><img src="image_87b71a.jpg"><h3>MPear Samuray</h3></div>
-        <div class="product-card"><img src="image_87b792.jpg"><h3>MPear Fantastic</h3></div>
-        <div class="product-card"><img src="image_87b3b4.jpg"><h3>KPear 1</h3></div>
+        <!-- Resimler artık doğrudan internetten çekiliyor -->
+        <div class="product-card"><img src="https://i.ibb.co/LhyxVw7/image-87ba7e.png"><h3>TPear 19 Pro</h3></div>
+        <div class="product-card"><img src="https://i.ibb.co/3WfPrvX/image-87baf1.png"><h3>TPear 20 Air</h3></div>
+        <div class="product-card"><img src="https://i.ibb.co/Yy7r93Y/image-87b71a.jpg"><h3>MPear Samuray</h3></div>
+        <div class="product-card"><img src="https://i.ibb.co/m0fHpxm/image-87b792.jpg"><h3>MPear Fantastic</h3></div>
+        <div class="product-card"><img src="https://i.ibb.co/V972v9k/image-87b3b4.jpg"><h3>KPear 1</h3></div>
     </div>
 </section>
 
@@ -63,10 +64,11 @@
     <div class="card">
         <h2 style="color:var(--cyan); font-family:'Orbitron';">HTML ÇAĞRI EKIBI</h2>
         <div style="text-align:left; margin-top:20px;">
-            <p style="margin-bottom:10px;"><strong style="color:var(--gold);">Kurucu:</strong> Ömer Faruk Türkoğlu</p>
+            <p style="margin-bottom:10px;"><strong style="color:var(--gold);">Başkan:</strong> Ömer Faruk Türkoğlu</p>
             <p><strong>Yazılımcı:</strong> Çağrı Atav</p>
         </div>
-    </section>
+    </div>
+</section>
 
 <!-- ÇEKİLİŞ -->
 <section id="page-giveaway" class="page">
@@ -114,7 +116,6 @@
         localStorage.setItem('p_parts', JSON.stringify(participants));
     }
 
-    // Haber Süre Kontrolü (24 Saat)
     function cleanOldNews() {
         const now = new Date().getTime();
         const day = 24 * 60 * 60 * 1000;
@@ -170,7 +171,6 @@
         }
     }
 
-    // Arka Plan Efekti
     for(let i=0; i<25; i++) {
         let p = document.createElement('div'); p.className = 'pear-fall'; p.innerHTML = '🍐';
         p.style.left = Math.random() * 100 + 'vw';
